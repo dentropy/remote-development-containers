@@ -2,13 +2,14 @@ services:
   filebrowser:
     image: gtstef/filebrowser:stable
     environment:
-      - FILEBROWSER_ADMIN_PASSWORD=ResetPassword
+      - FILEBROWSER_ADMIN_PASSWORD=${FILEBROWSER_ADMIN_PASSWORD}
     volumes:
       - ./config-filebrowser:/home/filebrowser/data
       - /home/:/files
     ports:
       - "2000:80"
     restart: unless-stopped
+
   obsidian:
     image: lscr.io/linuxserver/obsidian:latest
     container_name: obsidian
@@ -23,25 +24,21 @@ services:
       - "3001:3001"
     shm_size: "1gb"
     restart: unless-stopped
+
   code-server:
     image: lscr.io/linuxserver/code-server:latest
     container_name: code-server
     environment:
-      - PUID=1000                  # run `id -u` on the host
-      - PGID=1000                  # run `id -g` on the host
+      - PUID=1000
+      - PGID=1000
       - TZ=America/Toronto
-      - PASSWORD=ResetPassword          # plain password (change this!)
-      # - HASHED_PASSWORD=...      # preferred – see below
-      - SUDO_PASSWORD=ResetPassword     # optional – password for sudo inside the terminal
+      - PASSWORD=${PASSWORD}
+      - SUDO_PASSWORD=${SUDO_PASSWORD}
       - DEFAULT_WORKSPACE=/config/workspace
-      
-      # --- Extensions ---
-      # - DOCKER_MODS=linuxserver/mods:code-server-extension-arguments
-      # - VSCODE_EXTENSION_IDS=ms-python.python|dbaeumer.vscode-eslint|esbenp.prettier-vscode|vscode-icons-team.vscode-icons
     volumes:
-      - ./config-code-server:/config       # persistent config, extensions, settings
+      - ./config-code-server:/config
       - ./settings-code-server.json:/config/data/User/settings.json
-      - /home/dentropy/:/config/workspace  # your projects
+      - /home/dentropy/:/config/workspace
     ports:
       - "4000:8443"
     restart: unless-stopped
