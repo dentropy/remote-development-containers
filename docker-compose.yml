@@ -17,6 +17,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - CUSTOM_USER=admin
+      - PASSWORD=${PASSWORD}
     volumes:
       - /home/dentropy/Documents/Root:/config
     ports:
