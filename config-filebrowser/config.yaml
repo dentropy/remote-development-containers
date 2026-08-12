@@ -1,0 +1,12 @@
+server:
+  sources:
+    - path: /files
+      name: Files
+      config:
+        defaultEnabled: true
+
+auth:
+  adminUsername: admin
+  methods:
+    password:
+      enabled: true
