@@ -1,4 +1,3 @@
 config-code-server
-docker-compose.yml
 config-filebrowser/database.db
 .env
