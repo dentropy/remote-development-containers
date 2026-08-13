@@ -17,17 +17,20 @@
 #   - names mapped in /etc/hosts (skips localhost aliases)
 #
 # Usage:
-#   ./generateCaddyfile.sh                # write config-caddy/Caddyfile
-#   ./generateCaddyfile.sh /path/to/file  # write to a specific file
-#   ./generateCaddyfile.sh -              # print Caddyfile to stdout
+#   ./scripts/generateCaddyfile.sh                # write config-caddy/Caddyfile
+#   ./scripts/generateCaddyfile.sh /path/to/file  # write to a specific file
+#   ./scripts/generateCaddyfile.sh -              # print Caddyfile to stdout
 
 set -euo pipefail
 
+# Project root, regardless of where the script is invoked from.
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
 # Use the same credentials docker-compose gets from .env (if present).
-if [[ -f "$(dirname "$0")/.env" ]]; then
+if [[ -f "$ROOT/.env" ]]; then
   set -a
   # shellcheck disable=SC1091
-  source "$(dirname "$0")/.env"
+  source "$ROOT/.env"
   set +a
 fi
 
@@ -61,7 +64,7 @@ collect_hosts() {
   } | grep -v '^localhost$' | sort -u | sed '/^$/d'
 }
 
-OUT="${1:-$(dirname "$0")/config-caddy/Caddyfile}"
+OUT="${1:-$ROOT/config-caddy/Caddyfile}"
 
 addrs_for() {
   collect_hosts | sed "s/\$/:$1/" | paste -sd, - | sed 's/,/, /g'
