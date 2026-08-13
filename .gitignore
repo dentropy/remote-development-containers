@@ -1,3 +1,5 @@
 config-code-server
 config-filebrowser/database.db
+config-caddy/
+config-obsidian-ignis/
 .env

@@ -30,3 +30,6 @@ EOF
 echo "Generated .env file with new passwords:"
 echo
 cat .env
+
+# Regenerate the Caddyfile so basic auth uses the new PASSWORD.
+"$(dirname "$0")/generateCaddyfile.sh"

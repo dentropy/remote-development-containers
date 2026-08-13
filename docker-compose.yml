@@ -19,8 +19,9 @@ services:
       - TZ=Etc/UTC
       - CUSTOM_USER=admin
       - PASSWORD=${PASSWORD}
+      - SELKIES_ENABLE_BINARY_CLIPBOARD=true
     volumes:
-      - /home/dentropy/Documents/Root:/config
+      - /home/dentropy/Vaults:/config
     ports:
       - "3000:3000"
       - "3001:3001"
@@ -44,3 +45,34 @@ services:
     ports:
       - "4000:8443"
     restart: unless-stopped
+
+  ignis:
+    image: nobbe/ignis:latest
+    expose:
+      - "8080"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - OBSIDIAN_VERSION=1.12.7   # pinned by the project
+    volumes:
+      - /home/dentropy/Vaults:/vaults
+      - ./config-obsidian-ingis/data:/app/data
+      - ./config-obsidian-ignis/app:/app/obsidian-app
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./config-caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - ignis
+    restart: unless-stopped
+
+volumes:
+  obsidian-app:
+  caddy-data:
+  caddy-config:
