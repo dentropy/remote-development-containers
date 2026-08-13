@@ -42,8 +42,8 @@ services:
       - ./config-code-server:/config
       - ./settings-code-server.json:/config/data/User/settings.json
       - /home/dentropy/:/config/workspace
-    ports:
-      - "4000:8443"
+    expose:
+      - "8443"
     restart: unless-stopped
 
   ignis:
@@ -64,12 +64,14 @@ services:
     image: caddy:2-alpine
     ports:
       - "3002:3002"
+      - "4000:4000"
     volumes:
       - ./config-caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
       - ignis
+      - code-server
     restart: unless-stopped
 
 volumes:

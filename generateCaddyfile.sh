@@ -1,12 +1,15 @@
 #!/bin/bash
 
 # Generate a Caddyfile whose site addresses cover every hostname/IP of this
-# machine, so the self-signed certificate Caddy issues with `tls internal`
-# contains all of them as Subject Alternative Names (SANs). This lets other
+# machine, so the self-signed certificates Caddy issues with `tls internal`
+# contain all of them as Subject Alternative Names (SANs). This lets other
 # machines connect over HTTPS using any name/IP they know for this box.
 #
-# The endpoint is protected with HTTP basic auth (username "admin", password
-# taken from the PASSWORD environment variable, falling back to .env if set).
+# Two endpoints are published, each protected with HTTP basic auth (username
+# "admin", password taken from the PASSWORD environment variable, falling back
+# to .env if set):
+#   - Obsidian (ignis)    on :3002 -> ignis:8080
+#   - code-server         on :4000 -> code-server:8443
 #
 # Sources of hostnames:
 #   - machine hostname and FQDN
@@ -60,10 +63,12 @@ collect_hosts() {
 
 OUT="${1:-$(dirname "$0")/config-caddy/Caddyfile}"
 
-emit() {
-  local addrs auth_block
-  addrs=$(collect_hosts | sed 's/$/:3002/' | paste -sd, - | sed 's/,/, /g')
+addrs_for() {
+  collect_hosts | sed "s/\$/:$1/" | paste -sd, - | sed 's/,/, /g'
+}
 
+emit() {
+  local auth_block
   auth_block=''
   if [[ -n "$PASSWORD" ]]; then
     auth_block=$'\tbasic_auth {\n\t\tadmin '"$(hash_password "$PASSWORD")"$'\n\t}\n'
@@ -81,11 +86,22 @@ emit() {
 			http_redirect tls
 		}
 	}
+
+	servers :4000 {
+		listener_wrappers {
+			http_redirect tls
+		}
+	}
 }
 
-localhost:3002, ${addrs} {
+localhost:3002, $(addrs_for 3002) {
 	tls internal
 ${auth_block}	reverse_proxy ignis:8080
+}
+
+localhost:4000, $(addrs_for 4000) {
+	tls internal
+${auth_block}	reverse_proxy code-server:8443
 }
 EOF
 }
